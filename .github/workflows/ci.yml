@@ -45,7 +45,7 @@ jobs:
           BASE_BRANCH=${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'main' }}
           HEAD_BRANCH=${{ github.sha }}
 
-          AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --plain)
+          AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --plain || echo "")
 
           echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
           echo "::notice title=Affected Projects::Detected: $AFFECTED_PROJECTS"
