@@ -45,16 +45,17 @@ jobs:
           BASE_BRANCH=${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'main' }}
           HEAD_BRANCH=${{ github.sha }}
 
-          AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --plain || echo "")
+          AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --json | jq -r '.projects | join(" ")' || echo "")
 
-          echo "affected_projects=${AFFECTED_PROJECTS}" >> $GITHUB_OUTPUT
+          echo "affected_projects<<EOF" >> $GITHUB_OUTPUT
+          echo "$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
           if [ -n "$AFFECTED_PROJECTS" ]; then
             echo "::notice title=Affected Projects::Detected: $AFFECTED_PROJECTS"
           else
-            echo "::notice title=Affected Projects::Detected::No affected projects"
+            echo "::notice title=Affected Projects::No affected projects"
           fi
-
   validation:
     needs: [main_setup]
     if: needs.main_setup.outputs.affected_projects != ''
