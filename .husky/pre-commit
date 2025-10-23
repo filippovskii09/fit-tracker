@@ -1,0 +1,3 @@
+
+echo "🧹 Running lint-staged (pre-commit check only)..."
+pnpm lint-staged
