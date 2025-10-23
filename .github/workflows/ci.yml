@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm and Node
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
@@ -47,8 +47,13 @@ jobs:
 
           AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --plain || echo "")
 
-          echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
-          echo "::notice title=Affected Projects::Detected: $AFFECTED_PROJECTS"
+          echo "affected_projects=${AFFECTED_PROJECTS}" >> $GITHUB_OUTPUT
+
+          if [ -n "$AFFECTED_PROJECTS" ]; then
+            echo "::notice title=Affected Projects::Detected: $AFFECTED_PROJECTS"
+          else
+            echo "::notice title=Affected Projects::Detected::No affected projects"
+          fi
 
   validation:
     needs: [main_setup]
@@ -60,18 +65,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node & Install
+      - name: Setup Node & pnpm
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run Affected Lint, Test, and Typecheck
         run: |
           AFFECTED_PROJECTS=${{ needs.main_setup.outputs.affected_projects }}
 
-          pnpm exec nx run-many --target=lint --projects="$AFFECTED_PROJECTS" --parallel
-          pnpm exec nx run-many --target=test --projects="$AFFECTED_PROJECTS" --parallel
-          pnpm exec nx run-many --target=typecheck --projects="$AFFECTED_PROJECTS" --parallel
+          if [ -n "$AFFECTED_PROJECTS" ]; then
+            pnpm exec nx run-many --target=lint --projects="$AFFECTED_PROJECTS" --parallel
+            pnpm exec nx run-many --target=test --projects="$AFFECTED_PROJECTS" --parallel
+            pnpm exec nx run-many --target=typecheck --projects="$AFFECTED_PROJECTS" --parallel
+          else
+            echo "No affected projects to validate."
+          fi
