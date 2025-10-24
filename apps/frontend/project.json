@@ -1,0 +1,60 @@
+{
+  "name": "@fit-tracker/frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/frontend/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@fit-tracker/frontend:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@fit-tracker/frontend:build:development",
+          "hmr": true
+        },
+        "production": {
+          "buildTarget": "@fit-tracker/frontend:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/frontend",
+        "skipTypeCheck": false,
+        "assets": ["apps/frontend/public"],
+        "viteConfig": "apps/frontend/vite.config.ts"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/frontend/**/*.{ts,tsx,js,jsx}"],
+        "eslintConfig": "apps/frontend/eslint.config.mjs"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/frontend/jest.config.ts"
+      }
+    }
+  }
+}
