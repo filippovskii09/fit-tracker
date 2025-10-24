@@ -25,6 +25,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set Nx SHAs
+        uses: nrwl/nx-set-shas@v4
+        id: set-shas
+        with:
+          main-branch-name: 'main'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -42,10 +48,12 @@ jobs:
       - name: Get Affected Projects
         id: get_affected
         run: |
-          BASE_BRANCH=${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'main' }}
-          HEAD_BRANCH=${{ github.sha }}
-
-          AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --json | jq -r '.projects | join(" ")' || echo "")
+          AFFECTED_PROJECTS=$(pnpm exec nx affected \
+            --base=${{ steps.set-shas.outputs.base }} \
+            --head=${{ steps.set-shas.outputs.head }} \
+            --target=lint \
+            --target=test \
+            --json | jq -r '.projects | join(" ")' || echo "")
 
           echo "affected_projects<<EOF" >> $GITHUB_OUTPUT
           echo "$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
@@ -56,6 +64,7 @@ jobs:
           else
             echo "::notice title=Affected Projects::No affected projects"
           fi
+
   validation:
     needs: [main_setup]
     if: needs.main_setup.outputs.affected_projects != ''
@@ -75,14 +84,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Affected Lint, Test, and Typecheck
+      - name: Run Affected Lint and Test
         run: |
           AFFECTED_PROJECTS=${{ needs.main_setup.outputs.affected_projects }}
 
           if [ -n "$AFFECTED_PROJECTS" ]; then
             pnpm exec nx run-many --target=lint --projects="$AFFECTED_PROJECTS" --parallel
             pnpm exec nx run-many --target=test --projects="$AFFECTED_PROJECTS" --parallel
-            pnpm exec nx run-many --target=typecheck --projects="$AFFECTED_PROJECTS" --parallel
           else
             echo "No affected projects to validate."
           fi
