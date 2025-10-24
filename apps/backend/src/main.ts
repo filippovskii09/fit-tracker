@@ -2,7 +2,6 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import compression from 'compression';
-
 import { AppModule } from '@app/app.module';
 
 async function bootstrap() {

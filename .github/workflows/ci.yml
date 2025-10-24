@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI Pipeline (Brute-Force)
 
 on:
   push:
@@ -11,19 +11,15 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
-  main_setup:
+  validate:
     runs-on: ubuntu-latest
-    outputs:
-      affected_projects: ${{ steps.get_affected.outputs.affected_projects }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        # fetch-depth: 0 більше не потрібен
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -39,50 +35,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Get Affected Projects
-        id: get_affected
+      - name: Run Lint and Test for ALL projects
         run: |
-          BASE_BRANCH=${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'main' }}
-          HEAD_BRANCH=${{ github.sha }}
-
-          AFFECTED_PROJECTS=$(pnpm exec nx affected --target=lint --base=$BASE_BRANCH --head=$HEAD_BRANCH --json | jq -r '.projects | join(" ")' || echo "")
-
-          echo "affected_projects<<EOF" >> $GITHUB_OUTPUT
-          echo "$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          if [ -n "$AFFECTED_PROJECTS" ]; then
-            echo "::notice title=Affected Projects::Detected: $AFFECTED_PROJECTS"
-          else
-            echo "::notice title=Affected Projects::No affected projects"
-          fi
-  validation:
-    needs: [main_setup]
-    if: needs.main_setup.outputs.affected_projects != ''
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node & pnpm
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run Affected Lint, Test, and Typecheck
-        run: |
-          AFFECTED_PROJECTS=${{ needs.main_setup.outputs.affected_projects }}
-
-          if [ -n "$AFFECTED_PROJECTS" ]; then
-            pnpm exec nx run-many --target=lint --projects="$AFFECTED_PROJECTS" --parallel
-            pnpm exec nx run-many --target=test --projects="$AFFECTED_PROJECTS" --parallel
-            pnpm exec nx run-many --target=typecheck --projects="$AFFECTED_PROJECTS" --parallel
-          else
-            echo "No affected projects to validate."
-          fi
+          pnpm exec nx run-many --all --target=lint --parallel
+          pnpm exec nx run-many --all --target=test --parallel
