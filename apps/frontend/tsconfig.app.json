@@ -4,16 +4,12 @@
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "jsx": "react-jsx",
-    "lib": ["dom"],
-    "types": [
-      "node",
-      "@nx/react/typings/cssmodule.d.ts",
-      "@nx/react/typings/image.d.ts",
-      "vite/client"
-    ],
+    "lib": ["esnext", "dom"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "rootDir": "../../"
+    "skipLibCheck": true,
+    "rootDir": "../../",
+		"types": ["vite/client"]
   },
   "exclude": [
     "out-tsc",

@@ -16,6 +16,15 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@fit-tracker/source"]
+    "customConditions": ["@fit-tracker/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"],
+      "@fit-tracker/constants": ["shared/constants/src/index.ts"],
+      "@fit-tracker/schemas": ["shared/schemas/src/index.ts"],
+      "@fit-tracker/types": ["shared/types/src/index.ts"],
+      "@fit-tracker/utils": ["shared/utils/src/index.ts"],
+      "@frontend/*": ["apps/frontend/src/*"]
+    }
   }
 }

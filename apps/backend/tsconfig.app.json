@@ -22,7 +22,9 @@
   "include": [
     "src/**/*.ts",
     "../../shared/utils/src/**/*",
-    "../../shared/types/src/**/*"
+    "../../shared/types/src/**/*",
+    "../../shared/constants/src/**/*",
+    "../../shared/schemas/src/**/*"
   ],
   "exclude": [
     "**/*.spec.ts",
