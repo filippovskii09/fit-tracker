@@ -1,10 +1,18 @@
-export default {
-  displayName: '@fit-tracker/frontend',
+import type { Config } from 'jest';
+
+const config: Config = {
+  displayName: 'frontend',
   preset: '../../jest.preset.js',
+  testEnvironment: 'jsdom',
   transform: {
-    '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',
-    '^.+\\.[tj]sx?$': ['babel-jest', { presets: ['@nx/react/babel'] }],
+    '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: 'test-output/jest/coverage',
+  setupFilesAfterEnv: ['<rootDir>/src/testSetup.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/../../$1',
+    '^@frontend/(.*)$': '<rootDir>/src/$1',
+  },
 };
+
+export default config;
