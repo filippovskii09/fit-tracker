@@ -1,6 +1,5 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { TsconfigPathsPlugin } = require('tsconfig-paths-webpack-plugin');
-const path = require('path');
 const { join } = require('path');
 
 module.exports = {
@@ -13,8 +12,7 @@ module.exports = {
   resolve: {
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: path.resolve(__dirname, '../../tsconfig.base.json'),
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        configFile: 'apps/backend/tsconfig.app.json',
       }),
     ],
   },

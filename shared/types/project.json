@@ -1,0 +1,16 @@
+{
+  "name": "@fit-tracker/types",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/types/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["shared/types/**/*.ts"]
+      }
+    }
+  }
+}
